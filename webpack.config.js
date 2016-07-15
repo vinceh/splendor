@@ -16,6 +16,20 @@ module.exports = {
       {
         test: /\.scss$/,
         loaders: ["style", "css", "sass"]
+      },
+      {
+        // Match woff2 in addition to patterns like .woff?v=1.1.1.
+        test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+        loader: 'url',
+        query: {
+          limit: 50000,
+          mimetype: 'application/font-woff',
+          name: './assets/fonts/[hash].[ext]'
+        }
+      },
+      {
+        test: /\.(png|jpg)$/,
+        loader: 'url?limit=8192'
       }
     ]
   },
