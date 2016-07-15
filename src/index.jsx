@@ -5,14 +5,13 @@ import Immutable from 'immutable';
 import Game from './components/Game';
 
 import {Provider} from 'react-redux';
-import reducer from './reducer';
 import {compose, createStore} from 'redux';
-
-const createStoreDevTools = compose(
-  window.devToolsExtension ? window.devToolsExtension() : f => f
-)(createStore);
-
-const store = createStoreDevTools(reducer);
+// 
+// const createStoreDevTools = compose(
+//   window.devToolsExtension ? window.devToolsExtension() : f => f
+// )(createStore);
+//
+// const store = createStoreDevTools(reducer);
 
 const gameState = {
   meta: {
