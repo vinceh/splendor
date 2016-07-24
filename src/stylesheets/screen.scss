@@ -13,6 +13,23 @@ $yellow: #fced2e;
 $black: #2d3439;
 $red: #e4463f;
 
+.overloader {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: (255, 255, 255, 0);
+  .text {
+    text-align: center;
+    position: relative;
+    top: 50%;
+    line-height: 1em;
+    font-size: 60px;
+    margin-top: -30px;
+  }
+}
+
 .green {
   background-color: $green;
 }

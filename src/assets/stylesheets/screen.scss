@@ -13,6 +13,24 @@ $yellow: #fced2e;
 $black: #2d3439;
 $red: #e4463f;
 
+.overloader {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.7);
+  z-index: 999;
+  .text {
+    text-align: center;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 40%;
+    font-size: 60px;
+  }
+}
+
 .green {
   background-color: $green;
 }
@@ -55,20 +73,128 @@ $red: #e4463f;
   }
 }
 
+html {
+  height: 100%;
+}
+
 body {
   font-family: Whitney;
   background: url('../images/bg.jpg');
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
+  height: 100%;
+}
+
+.btn {
+  outline: none;
+  border: none;
+  color: white;
+  background-color: #a74040;
+  box-shadow: 0 4px 0 shade(#a74040, 25%);
+  border: 1px solid shade(#a74040, 25%);
+  line-height: 1em;
+  padding: 0.6em 1.1em;
+  border-radius: 0.3em;
+  font-weight: 500;
+  &:hover {
+    cursor: pointer;
+    background-color: tint(#a74040, 5%);
+  }
+}
+
+.home-wrap {
+  text-align: center;
+  padding-top: 200px;
+  color: white;
+  font-size: 40px;
+  .btn {
+    margin-top: 50px;
+    font-size: 30px;
+  }
+}
+
+.btn {
+  background-color: #555;
+  color: white;
+  padding: 12px 20px;
+  font-size: 15px;
+  border-radius: 4px;
+  margin-right: 10px;
+  box-shadow: 0 3px 0 shade(#555, 40%);
+  font-weight: 400;
+  height: 40px;
+  border: 1px solid #222;
+  box-sizing: border-box;
+  &:hover {
+    cursor: pointer;
+  }
+  &:last-child {
+    margin-right: 0;
+  }
 }
 
 .turn-box {
   position: fixed;;
   left: 0;
-  bottom: 20px;
+  // bottom: 20px;
   width: 100%;
-  // top: 600px;
+  top: 610px;
+  background: rgba(0, 0, 0, 0.3);
+  color: #ddd;
+  text-align: center;
+  padding: 25px 0;
+  font-size: 25px;
+  display: table;
+  width: 100%;
+  .actions {
+    // margin-top: 20px;
+    line-height: 60px;
+    float: left;
+  }
+  .turn-box-inner-wrap {
+    display: table;
+    margin: 0 auto;
+    .turn-help {
+      // margin-bottom: 30px;
+      // display: inline-block;
+      line-height: 60px;
+      float: left;
+      margin-right: 30px;
+    }
+    .gems-picked {
+      // display: inline-block;
+      float: left;
+      height: 60px;
+      .actions {
+        .btn {
+          margin-top: 9px;
+        }
+      }
+      .redo-picks, .done-picks {
+        float: left;
+      }
+      .coin-pile {
+        float: left;
+        margin-right: 25px;
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+      .gem-slot {
+        box-sizing: border-box;
+        width: 60px;
+        height: 60px;
+        border-radius: 99px;
+        border: 2px dashed #aaa;
+        display: inline-block;
+        margin-right: 25px;
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+    }
+  }
   .turn-box-inner {
     background-color: #eee;
     border-radius: 3px;
@@ -76,6 +202,7 @@ body {
     width: 800px;
     margin: 0 auto;
     display: table;
+
     .your-turn {
       float: left;
       padding: 12px 20px;
@@ -87,23 +214,7 @@ body {
     .actions {
       // float: left;
     }
-    .btn {
-      border: none;
-      background-color: #555;
-      color: white;
-      padding: 12px 20px;
-      font-size: 15px;
-      margin: 10px 0;
-      border-radius: 4px;
-      margin-right: 10px;
-      box-shadow: 0 3px 0 shade(#555, 30%);
-      &:hover {
-        cursor: pointer;
-      }
-      &:last-child {
-        margin-right: 0;
-      }
-    }
+
   }
 }
 
@@ -126,7 +237,7 @@ body {
   .avatar-wrap {
     padding: 5px;
     border-radius: 5px;
-    background-color: #eee;
+    background: rgba(0, 0, 0, 0.3);
     .avatar {
       img {
         width: 100%;
@@ -137,6 +248,7 @@ body {
       text-align: center;
       font-size: 35px;
       padding: 8px 0 3px;
+      text-shadow: none;
     }
   }
   .handy {
@@ -171,7 +283,7 @@ body {
       display: table;
       width: 100%;
       padding: 5px;
-      background-color: #eee;
+      background: rgba(0, 0, 0, 0.3);
       border-radius: 3px;
       box-sizing: border-box;
       margin-top: 10px;
@@ -188,6 +300,9 @@ body {
         box-sizing: border-box;
         &:last-child {
           margin-bottom: 0;
+        }
+        &.yellow {
+          opacity: 0;
         }
         span {
           position: absolute;;
@@ -225,7 +340,7 @@ body {
 
 .players {
   position: fixed;
-  right: 20px;
+  right: 0;
   top: 20px;
   .player {
     margin-bottom: 20px;
@@ -233,11 +348,16 @@ body {
     height: 50px;
     box-sizing: border-box;
     padding: 5px;
-    border-radius: 5px;
-    background-color: #eee;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    background: rgba(0, 0, 0, 0.3);
     &:hover {
       cursor: pointer;
-      background-color: #ddd;
+      background: rgba(0, 0, 0, 0.45);
+    }
+    &.current-player {
+      box-shadow: 0 0 25px #aaa;
+      background: rgba(0, 0, 0, 0.55);
     }
     .avatar {
       width: 40px;
@@ -256,6 +376,7 @@ body {
       margin-left: 40px;
       text-align: center;
       padding-top: 7px;
+      text-shadow: none;
     }
   }
 }
@@ -378,60 +499,68 @@ body {
   }
 }
 
+.active-glow {
+  box-shadow: 0 0 30px #e2d209;
+  &:hover {
+    cursor: pointer;
+    box-shadow: 0 0 45px #e2d209;
+  }
+}
+
+.coin-pile {
+  border-radius: 999px;
+  width: 60px;
+  height: 60px;
+  position: relative;
+  background-size: 50px,cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: white;
+  box-sizing: border-box;
+  &.green {
+    background-image:
+      url('../images/gems/green.png'),
+      url('../images/gems/greenbg.jpg');
+    border: 3px solid $green;
+  }
+  &.white {
+    background-image:
+      url('../images/gems/white.png'),
+      url('../images/gems/whitebg.jpg');
+    border: 3px solid $white;
+  }
+  &.blue {
+    background-image:
+      url('../images/gems/blue.png'),
+      url('../images/gems/bluebg.jpg');
+    border: 3px solid $blue;
+  }
+  &.black {
+    background-image:
+      url('../images/gems/black.png'),
+      url('../images/gems/blackbg.jpg');
+    border: 3px solid $black;
+  }
+  &.red {
+    background-image:
+      url('../images/gems/red.png'),
+      url('../images/gems/redbg.jpg');
+    border: 3px solid $red;
+  }
+  &.yellow {
+    background-image:
+      url('../images/gems/yellow.png'),
+      url('../images/gems/yellowbg.jpg');
+    border: 3px solid $yellow;
+  }
+}
+
 .currency-piles {
   position: absolute;
   left: -90px;
   top: 20px;
   .coin-pile {
-    border-radius: 999px;
-    width: 60px;
-    height: 60px;
     margin-bottom: 40px;
-    // border: 1px solid #ddd;
-    position: relative;
-
-    background-size: 50px,cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-color: white;
-
-    box-sizing: border-box;
-    &.green {
-      background-image:
-        url('../images/gems/green.png'),
-        url('../images/gems/greenbg.jpg');
-      border: 3px solid $green;
-    }
-    &.white {
-      background-image:
-        url('../images/gems/white.png'),
-        url('../images/gems/whitebg.jpg');
-      border: 3px solid $white;
-    }
-    &.blue {
-      background-image:
-        url('../images/gems/blue.png'),
-        url('../images/gems/bluebg.jpg');
-      border: 3px solid $blue;
-    }
-    &.black {
-      background-image:
-        url('../images/gems/black.png'),
-        url('../images/gems/blackbg.jpg');
-      border: 3px solid $black;
-    }
-    &.red {
-      background-image:
-        url('../images/gems/red.png'),
-        url('../images/gems/redbg.jpg');
-      border: 3px solid $red;
-    }
-    &.yellow {
-      background-image:
-        url('../images/gems/yellow.png'),
-        url('../images/gems/yellowbg.jpg');
-      border: 3px solid $yellow;
-    }
     &:before {
       content: "";
       border-radius: 999px;
