@@ -103,6 +103,10 @@ body {
   }
 }
 
+.bold {
+  font-weight: 500;
+}
+
 .home-wrap {
   text-align: center;
   padding-top: 200px;
@@ -123,9 +127,14 @@ body {
   margin-right: 10px;
   box-shadow: 0 3px 0 shade(#555, 40%);
   font-weight: 400;
-  height: 40px;
   border: 1px solid #222;
   box-sizing: border-box;
+  &:disabled {
+    opacity: 0.5;
+    &:hover {
+      cursor: default;
+    }
+  }
   &:hover {
     cursor: pointer;
   }
@@ -151,10 +160,26 @@ body {
     // margin-top: 20px;
     line-height: 60px;
     float: left;
+    .btn {
+      position: relative;
+      top: -2px;
+    }
+    &:first-child {
+      margin-right: 30px;
+    }
   }
   .turn-box-inner-wrap {
     display: table;
     margin: 0 auto;
+    &.discard-gems {
+      .gems-picked {
+        margin-left: 20px;
+        .coin-pile {
+          margin-right: 50px;
+          margin-bottom: 0;
+        }
+      }
+    }
     .turn-help {
       // margin-bottom: 30px;
       // display: inline-block;
@@ -166,14 +191,18 @@ body {
       // display: inline-block;
       float: left;
       height: 60px;
+      margin-right: 30px;
+      &:last-child {
+        margin-right: 0;
+      }
       .actions {
         .btn {
           margin-top: 9px;
         }
       }
-      .redo-picks, .done-picks {
-        float: left;
-      }
+      // .redo-picks, .done-picks {
+      //   float: left;
+      // }
       .coin-pile {
         float: left;
         margin-right: 25px;
@@ -257,11 +286,13 @@ body {
     position: relative;
     padding: 10px 10px;
     border-radius: 200px;
-    box-shadow: 0 3px 0 #aaa;
-    background-color: #ddd;
+    background-color: #555;
+    box-shadow: 0 3px 0 #333333;
+    border: 1px solid #222;
+    box-sizing: border-box;
     &:hover {
       cursor: pointer;
-      background-color: #d6d6d6;
+      background-color: tint(#a74040, 5%);
     }
     span {
       left: 0;
@@ -272,6 +303,7 @@ body {
       font-size: 16px;
       margin-top: -8px;
       font-weight: 500;
+      color: #333;
     }
     i {
       font-size: 39px;
@@ -553,13 +585,7 @@ body {
       url('../images/gems/yellowbg.jpg');
     border: 3px solid $yellow;
   }
-}
-
-.currency-piles {
-  position: absolute;
-  left: -90px;
-  top: 20px;
-  .coin-pile {
+  &.show-count {
     margin-bottom: 40px;
     &:before {
       content: "";
@@ -592,8 +618,17 @@ body {
       margin-top: -8px;
       z-index: 99;
       color: #555;
+      font-size: 16px;
+      width: 9px;
+      text-align: center;
     }
   }
+}
+
+.currency-piles {
+  position: absolute;
+  left: -90px;
+  top: 20px;
 }
 
 .nobles-list {

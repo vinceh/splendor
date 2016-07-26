@@ -3,6 +3,7 @@ export function game(state = {fetching: true}, action) {
     case 'NEW_GAME':
       return action.game_data
     case 'GET_GAME':
+      // console.log('get game got called')
       return action.game_data
     default:
       return state

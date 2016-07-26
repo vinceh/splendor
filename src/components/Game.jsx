@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
-import { get_game } from '../actions'
+import { get_game, submit_pick_gems } from '../actions'
 
 class Game extends React.Component {
   constructor() {
@@ -12,18 +12,29 @@ class Game extends React.Component {
     this.unpickGem = this.unpickGem.bind(this)
     this.redoPicks = this.redoPicks.bind(this)
     this.donePicks = this.donePicks.bind(this)
+    this.discardGem = this.discardGem.bind(this)
+    this.doneDiscardingGems = this.doneDiscardingGems.bind(this)
   }
 
   componentDidMount() {
+    console.log('component mounted', this.props)
     if (this.props.fetching) {
       const { dispatch } = this.props
       const { game_id } = this.props.params
-      dispatch(get_game(parseInt(game_id)))
+      setTimeout(() => {
+        dispatch(get_game(parseInt(game_id)))
+      }, 0)
+    }
+    else {
+      // this is ugly because componentWillReceiveProps doesn't get called
+      // on the initial render, so we have to call it here
+      this.setInitialState(this.props)
     }
   }
 
-  componentWillReceiveProps(newProps) {
-    const { current_player, meta } = newProps
+  setInitialState(props) {
+    const { current_player, meta } = props
+    this.state = {}
 
     if ( current_player.id == meta.current_turn_player_id ) {
       this.setState({
@@ -34,14 +45,17 @@ class Game extends React.Component {
     }
   }
 
+  componentWillReceiveProps(newProps) {
+    this.setInitialState(newProps)
+  }
+
   pickAction(action) {
     switch (action) {
       case 'TAKE_GEMS':
         this.setState({
           turnState: action,
           turnObjects: {
-            gems: {},
-            card: {}
+            gems: {}
           }
         })
     }
@@ -124,11 +138,63 @@ class Game extends React.Component {
   coinPileClass(coin) {
     return classNames(
       'coin-pile',
+      'show-count',
       coin,
       {
         'active-glow': this.canGemBePicked(coin)
       }
     )
+  }
+
+  discardedCoinPileClass(coin) {
+    return classNames(
+      'coin-pile',
+      'show-count',
+      coin,
+      {
+        'active-glow': this.canDiscardedGemBePicked(coin)
+      }
+    )
+  }
+
+  totalGemInHand(coin) {
+    const { current_player } = this.props
+    const { turnObjects, discardedGems } = this.state
+
+    return ( current_player.inventory.coins[coin] ) +
+           ( turnObjects.gems[coin] || 0 ) -
+           ( discardedGems[coin] || 0 )
+  }
+
+  totalGemsInHand(include_discarded: false) {
+    const { current_player } = this.props
+    const { turnObjects, discardedGems } = this.state
+
+    var myGems = current_player.inventory.coins
+    var total = 0
+
+    for ( var gem in myGems ) {
+      total = total +
+              ( myGems[gem] ) +
+              ( turnObjects.gems[gem] || 0 )
+      if ( include_discarded ) {
+        total = total - ( discardedGems[gem] || 0 )
+      }
+    }
+
+    console.log('total gems in hand', total)
+
+    return total
+  }
+
+  canDiscardedGemBePicked(coin) {
+    if ( this.totalGemsInHand(true) > 10 ) {
+      if ( this.totalGemInHand(coin) > 0 ) {
+        return true
+      }
+      return false
+    }
+    return false
   }
 
   boardCoinAmount(coin) {
@@ -137,7 +203,7 @@ class Game extends React.Component {
 
     var boardAmount = board.coins[coin]
 
-    if ( turnState == 'TAKE_GEMS' ) {
+    if ( turnState == 'TAKE_GEMS' || turnState == 'DISCARD_GEMS' ) {
       return boardAmount - (turnObjects.gems[coin] || 0)
     }
     else {
@@ -146,7 +212,7 @@ class Game extends React.Component {
   }
 
   renderChosenGems() {
-    const { turnObjects } = this.state
+    const { turnObjects, submittingTurn } = this.state
     var gems = turnObjects.gems
 
     var returnee = []
@@ -162,10 +228,7 @@ class Game extends React.Component {
 
     returnee.push(
       <div className='actions' key='pickactions'>
-        <button className='redo-picks btn' onClick={this.redoPicks} key='repickgems'>
-          Repick
-        </button>
-        <button className='done-picks btn' onClick={this.donePicks} key='donepicking'>
+        <button className='btn' onClick={this.donePicks} key='donepicking'>
           End Turn
         </button>
       </div>
@@ -176,17 +239,19 @@ class Game extends React.Component {
 
   redoPicks() {
     const { turnObjects, turnState } = this.state
+
     turnObjects.gems = {}
-    this.setState({turnObjects: turnObjects})
+    this.setState({
+      turnState: 'TAKE_GEMS',
+      turnObjects: turnObjects
+    })
 
     console.log('redoing picks', this.state)
   }
 
-  totalGemsInHand() {
-    return 11
-  }
-
   donePicks() {
+    const { dispatch } = this.props
+
     if (this.totalGemsInHand() > 10) {
       console.log('too many gems')
 
@@ -197,6 +262,111 @@ class Game extends React.Component {
         console.log('done picks', this.state)
       )
     }
+    else {
+      console.log('submiting turn with no discarded gems!')
+      this.setState({
+        submittingTurn: true
+      })
+      setTimeout(() => {
+        dispatch(submit_pick_gems(
+          this.props.game_id,
+          {
+            turnState: this.state.turnState,
+            gems: this.state.turnObjects.gems
+          }
+        ))
+      }, 2000)
+    }
+  }
+
+  discardDoneButton() {
+    var handTotal = this.totalGemsInHand(true)
+
+    console.log('discard button', handTotal)
+
+    if ( handTotal > 1 ) {
+      return (
+        <button className='btn' disabled='disabled'>
+          {handTotal - 10} left
+        </button>
+      )
+    }
+    else {
+      return (
+        <button className='btn'
+                onClick={this.doneDiscardingGems}>
+          Done
+        </button>
+      )
+    }
+  }
+
+  doneDiscardingGems() {
+    const { dispatch } = this.props
+    this.setState({
+      submittingTurn: true
+    })
+
+    setTimeout(() => {
+      dispatch(submit_pick_gems(
+        this.props.game_id,
+        {
+          turnState: this.state.turnState,
+          gems: this.state.turnObjects.gems,
+          discardedGems: this.state.discardedGems
+        }
+      ))
+    }, 2000)
+  }
+
+  discardGem(coin) {
+    if ( this.canDiscardedGemBePicked(coin) ) {
+      const { discardedGems } = this.state
+      discardedGems[coin] = (discardedGems[coin] || 0) + 1
+      this.setState(
+        {discardedGems: discardedGems}, () =>
+        console.log('gem discarded', this.state)
+      )
+    }
+  }
+
+  renderMyGems() {
+    const { current_player } = this.props
+    const { turnObjects } = this.state
+
+    var myGems = {}
+    var inventoryCoins = current_player.inventory.coins
+    for ( var key in inventoryCoins) {
+      myGems[key] = inventoryCoins[key]
+    }
+
+    for ( var key in turnObjects.gems ) {
+      myGems[key] = (myGems[key] || 0) + turnObjects.gems[key]
+    }
+
+    console.log('my gems', myGems)
+
+    var renderedGems = []
+
+    for ( var key in myGems ) {
+      if (myGems[key] > 0) {
+        renderedGems.push(
+          <div className={this.discardedCoinPileClass(key)}
+               key={`mycoinpile${key}`}
+               onClick={this.discardGem.bind(this, key)}>
+            <span className='count'>
+              {this.totalGemInHand(key)}
+            </span>
+          </div>
+        )
+      }
+    }
+
+    return(
+      <div className='gems-picked'>
+        {renderedGems}
+      </div>
+    )
   }
 
   render() {
@@ -204,10 +374,10 @@ class Game extends React.Component {
 
     return (
       <div id='main' key={Date.now()}>
-        {fetching &&
+        {(fetching || this.state.submittingTurn) &&
           <div className="overloader">
             <div className="text">
-              <img src="https://dl.dropboxusercontent.com/u/4457377/balls%20%281%29.svg"/>
+              <img src="https://s3.amazonaws.com/splendor-general/assets/loading-balls.svg"/>
             </div>
           </div>
         }
@@ -237,7 +407,7 @@ class Game extends React.Component {
                 {this.state.turnState == 'TAKE_GEMS' &&
                   <div className='turn-box-inner-wrap'>
                     <div className='turn-help'>
-                      Pick the Gem(s) you want
+                      Pick Gems you want (total <span className='bold'>{this.totalGemsInHand()}</span> gems in hand)
                     </div>
                     <div className='gems-picked'>
                       {this.objEmpty(this.state.turnObjects.gems) &&
@@ -250,6 +420,17 @@ class Game extends React.Component {
                       {!this.objEmpty(this.state.turnObjects.gems) &&
                         this.renderChosenGems()
                       }
+                    </div>
+                  </div>
+                }
+                {this.state.turnState == 'DISCARD_GEMS' &&
+                  <div className='turn-box-inner-wrap discard-gems'>
+                    <div className='turn-help'>
+                      {this.totalGemsInHand(true)}/10 Gems in hand, discard down to 10
+                    </div>
+                    {this.renderMyGems()}
+                    <div className='actions'>
+                      {this.discardDoneButton()}
                     </div>
                   </div>
                 }
@@ -469,9 +650,10 @@ class Game extends React.Component {
 }
 
 function mapStateToProps(state) {
+  console.log('mapping state to props', state)
   if (!state.game.fetching) {
-    console.log('State detected')
     return {
+      game_id: state.game.game_id,
       meta: state.game.meta,
       board: state.game.board,
       game_players: state.game.game_players,
