@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
-import { get_game, submit_pick_gems } from '../actions'
+import { get_game, submit_pick_gems, submit_reserve_card, submit_buy_card } from '../actions'
 
 class Game extends React.Component {
   constructor() {
@@ -11,9 +11,14 @@ class Game extends React.Component {
     this.pickGem = this.pickGem.bind(this)
     this.unpickGem = this.unpickGem.bind(this)
     this.redoPicks = this.redoPicks.bind(this)
-    this.donePicks = this.donePicks.bind(this)
+    this.doneGemPicks = this.doneGemPicks.bind(this)
     this.discardGem = this.discardGem.bind(this)
     this.doneDiscardingGems = this.doneDiscardingGems.bind(this)
+    this.setInitialState = this.setInitialState.bind(this)
+    this.pickCard = this.pickCard.bind(this)
+    this.doneReserveCardPick = this.doneReserveCardPick.bind(this)
+    this.toggleHand = this.toggleHand.bind(this)
+    this.doneBuyCardPick = this.doneBuyCardPick.bind(this)
   }
 
   componentDidMount() {
@@ -34,7 +39,13 @@ class Game extends React.Component {
 
   setInitialState(props) {
     const { current_player, meta } = props
-    this.state = {}
+
+    if ( current_player.hand.length == 0 ) {
+      this.state = {}
+    }
+    else {
+      this.state = {showHand: this.state.showHand}
+    }
 
     if ( current_player.id == meta.current_turn_player_id ) {
       this.setState({
@@ -49,6 +60,69 @@ class Game extends React.Component {
     this.setInitialState(newProps)
   }
 
+  toggleHand() {
+    this.setState({
+      showHand: !this.state.showHand
+    }, () => {
+      // console.log('hand toggled', this.state)
+    })
+  }
+
+  doneBuyCardPick() {
+    const { dispatch } = this.props
+    const { turnObjects } = this.state
+
+    this.setState({
+      submittingTurn: true
+    })
+
+    setTimeout(() => {
+      dispatch(submit_buy_card(
+        this.props.game_id,
+        {
+          card_id: turnObjects.card.id
+        }
+      ))
+    }, 0)
+
+    console.log('done picking the card i wanna buy!')
+  }
+
+  doneReserveCardPick() {
+    console.log('done card pick')
+    const { dispatch } = this.props
+    const { turnState } = this.state
+
+    // TODO
+    if (this.totalGemsInHand() > 10) {
+      console.log('too many gems')
+
+      this.setState({
+        turnState: 'DISCARD_GEMS',
+        turnAction: turnState,
+        discardedGems: {}
+      }, () =>
+        console.log('done picks', this.state)
+      )
+    }
+    else {
+      console.log('submiting reserve turn with no discarded gems!')
+      this.setState({
+        submittingTurn: true
+      })
+      setTimeout(() => {
+        dispatch(submit_reserve_card(
+          this.props.game_id,
+          {
+            turnState: this.state.turnState,
+            gems: this.state.turnObjects.gems,
+            card_id: this.state.turnObjects.card.id
+          }
+        ))
+      }, 2000)
+    }
+  }
+
   pickAction(action) {
     switch (action) {
       case 'TAKE_GEMS':
@@ -58,6 +132,26 @@ class Game extends React.Component {
             gems: {}
           }
         })
+        break
+      case 'RESERVE_CARD':
+        this.setState({
+          turnState: action,
+          turnObjects: {
+            gems: {
+              yellow: 1
+            },
+            card: {}
+          }
+        })
+        break
+      case 'BUY_CARD':
+        this.setState({
+          turnState: action,
+          turnObjects: {
+            card: {}
+          }
+        })
+        break
     }
   }
 
@@ -182,12 +276,11 @@ class Game extends React.Component {
       }
     }
 
-    console.log('total gems in hand', total)
-
     return total
   }
 
   canDiscardedGemBePicked(coin) {
+    // TODO fix
     if ( this.totalGemsInHand(true) > 10 ) {
       if ( this.totalGemInHand(coin) > 0 ) {
         return true
@@ -203,7 +296,7 @@ class Game extends React.Component {
 
     var boardAmount = board.coins[coin]
 
-    if ( turnState == 'TAKE_GEMS' || turnState == 'DISCARD_GEMS' ) {
+    if ( turnState == 'TAKE_GEMS' || turnState == 'DISCARD_GEMS' || turnState == 'RESERVE_CARD') {
       return boardAmount - (turnObjects.gems[coin] || 0)
     }
     else {
@@ -228,7 +321,7 @@ class Game extends React.Component {
 
     returnee.push(
       <div className='actions' key='pickactions'>
-        <button className='btn' onClick={this.donePicks} key='donepicking'>
+        <button className='btn' onClick={this.doneGemPicks} key='donepicking'>
           End Turn
         </button>
       </div>
@@ -249,14 +342,17 @@ class Game extends React.Component {
     console.log('redoing picks', this.state)
   }
 
-  donePicks() {
+  doneGemPicks() {
     const { dispatch } = this.props
+    const { turnState } = this.state
 
+    // TODO fix
     if (this.totalGemsInHand() > 10) {
       console.log('too many gems')
 
       this.setState({
         turnState: 'DISCARD_GEMS',
+        turnAction: turnState,
         discardedGems: {}
       }, () =>
         console.log('done picks', this.state)
@@ -279,12 +375,67 @@ class Game extends React.Component {
     }
   }
 
+  pickCard(card) {
+    const { turnState } = this.state
+
+    if ( turnState == 'RESERVE_CARD' ) {
+      console.log('pick card', card)
+      const { turnObjects } = this.state
+      turnObjects.card = card
+      this.setState({
+        turnObjects: turnObjects
+      }, () => {
+        console.log('card picked', this.state)
+      })
+    }
+
+    if ( turnState == 'BUY_CARD' && this.canCurrentPlayerBuyCard(card) ) {
+      console.log('buy card', card)
+      const { turnObjects } = this.state
+      turnObjects.card = card
+      this.setState({
+        turnObjects: turnObjects
+      }, () => {
+        console.log('card picked', this.state)
+      })
+    }
+  }
+
+  renderCardPicked() {
+    const { card } = this.state.turnObjects
+
+    if ( this.objEmpty(card) ) {
+      return <div className='gem-slot card-slot'></div>
+    }
+    else {
+      return (
+        <div className={classNames('card', card.gem_value)}>
+          <div className='cost'>
+            {card.cost.map((costItem, index) =>
+              <div className={classNames('mini-coin', costItem.color)}
+                   key={'1'+index}>
+                <span className='value'>
+                  {costItem.amount}
+                </span>
+              </div>
+            )}
+          </div>
+          <div className='points'>
+            {card.point_value > 0 ? card.point_value : ''}
+          </div>
+          <img className='value-gem' src={require('../assets/images/gems/'+card.gem_value+'.png')}/>
+        </div>
+      )
+    }
+  }
+
   discardDoneButton() {
     var handTotal = this.totalGemsInHand(true)
 
     console.log('discard button', handTotal)
 
-    if ( handTotal > 1 ) {
+    // TODO
+    if ( handTotal > 10 ) {
       return (
         <button className='btn' disabled='disabled'>
           {handTotal - 10} left
@@ -303,20 +454,43 @@ class Game extends React.Component {
 
   doneDiscardingGems() {
     const { dispatch } = this.props
+    const { turnState, turnAction } = this.state
+
     this.setState({
       submittingTurn: true
     })
 
-    setTimeout(() => {
-      dispatch(submit_pick_gems(
-        this.props.game_id,
-        {
-          turnState: this.state.turnState,
-          gems: this.state.turnObjects.gems,
-          discardedGems: this.state.discardedGems
-        }
-      ))
-    }, 2000)
+    console.log('done discarding', this.state);
+
+    switch ( turnAction ) {
+      case 'TAKE_GEMS':
+        setTimeout(() => {
+          dispatch(submit_pick_gems(
+            this.props.game_id,
+            {
+              turnState: this.state.turnState,
+              gems: this.state.turnObjects.gems,
+              discardedGems: this.state.discardedGems
+            }
+          ))
+        }, 2000)
+        break
+      case 'RESERVE_CARD':
+        setTimeout(() => {
+          dispatch(submit_reserve_card(
+            this.props.game_id,
+            {
+              turnState: this.state.turnState,
+              gems: this.state.turnObjects.gems,
+              card_id: this.state.turnObjects.card.id,
+              discardedGems: this.state.discardedGems
+            }
+          ))
+        }, 2000)
+        break
+    }
+
+
   }
 
   discardGem(coin) {
@@ -369,11 +543,210 @@ class Game extends React.Component {
     )
   }
 
+  canReserveCard() {
+    const { current_player } = this.props
+
+    if ( current_player.hand.length == 3 ) {
+      return false
+    }
+    else {
+      return true
+    }
+  }
+
+  boardCardClasses(card) {
+    const { turnState } = this.state
+
+    switch ( turnState ) {
+      case 'RESERVE_CARD':
+        return classNames('card',
+                          card.gem_value,
+                          'active-glow')
+        break
+      case 'BUY_CARD':
+        return classNames('card',
+                          card.gem_value,
+                          {
+                            'active-glow': this.canCurrentPlayerBuyCard(card)
+                          })
+        break
+      default:
+        return classNames('card',
+                          card.gem_value)
+        break
+    }
+  }
+
+  canCurrentPlayerBuyCard(card) {
+    const { current_player } = this.props
+
+    var canAfford = true
+    var totalInventory = 0
+    var totalCost = 0
+
+    for ( var i=0; i < card.cost.length; i++ ) {
+      var gemCost = card.cost[i]
+      var inventory = current_player.inventory
+      var handValue = (inventory.coins[gemCost.color] || 0) +
+                      (inventory.gems[gemCost.color] || 0)
+
+      totalCost = totalCost + gemCost.amount
+
+      if ( handValue < gemCost.amount ) {
+        canAfford = false
+        totalInventory = totalInventory + handValue
+      }
+      else {
+        totalInventory = totalInventory + gemCost.amount
+      }
+
+      if ( card.id == 46 ) {
+        console.log('affordance', 'gemCost', gemCost, 'handValue', handValue)
+      }
+    }
+
+    if ( totalInventory + current_player.inventory.coins.yellow >= totalCost) {
+      canAfford = true
+    }
+
+    if ( card.id == 46 ) {
+      console.log('affordance', 'canafford', canAfford, 'totalinv', totalInventory, 'current p', current_player, 'totalcost', totalCost)
+    }
+
+    return canAfford
+  }
+
+  canReserveJoker() {
+    if ( this.boardCoinAmount('yellow') > 0) {
+      return true
+    }
+    else {
+      return false
+    }
+  }
+
+  handyClass() {
+    return classNames(
+      'handy',
+      'btn',
+      {
+        'active-glow': this.handContainsPurchasableCards()
+      }
+    )
+  }
+
+  handContainsPurchasableCards() {
+    const { turnState } = this.state
+
+    if ( turnState == 'BUY_CARD' ) {
+      const { current_player } = this.props
+
+      for ( var i=0; i < current_player.hand.length; i++ ) {
+        if ( this.canCurrentPlayerBuyCard(current_player.hand[i]) ) {
+          return true
+        }
+      }
+    }
+
+    return false
+  }
+
+  reserveButtonDisabled() {
+    const { card } = this.state.turnObjects
+
+    if ( this.objEmpty(card) ) {
+      return true
+    }
+    else {
+      return false
+    }
+  }
+
+  handEmpty() {
+    const { current_player } = this.props
+
+    if ( current_player.hand.length == 0 )
+      return true
+    else
+      return false
+  }
+
+  lastRound() {
+    const { game_players } = this.props
+
+    for ( var i=0; i < game_players.length; i++ ) {
+      if ( game_players[i].points >= 15 ) {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  roundNumber(turn) {
+    return Math.ceil(turn/4)
+  }
+
+  didIWin() {
+    const { game_stat, current_player } = this.props
+
+    if ( game_stat.winner.player_id == current_player.id ) {
+      return true
+    }
+    else {
+      return false
+    }
+  }
+
+  didIWinText() {
+    const { game_stat, current_player } = this.props
+
+    if ( this.didIWin() ) {
+      return "You won! :)"
+    }
+    else {
+      return "You Lose :("
+    }
+  }
+
+  currentTurnPlayerName() {
+    const { game_players, meta } = this.props
+
+    for ( var i=0; i < game_players.length; i++ ) {
+      if ( game_players[i].id == meta.current_turn_player_id ) {
+        return game_players[i].user.name
+      }
+    }
+  }
+
+  renderPlayerPoints() {
+    const { game_players } = this.props
+
+    var player_elements = []
+    var sortedPlayers = game_players.sort((a, b) => {
+      return b.points - a.points
+    })
+
+    console.log('sorted players', sortedPlayers)
+
+    for ( var i=0; i < sortedPlayers.length; i++ ) {
+      player_elements.push(
+        <div className='player-point'>
+          <img src={sortedPlayers[i].user.avatar_url}/>
+          {sortedPlayers[i].user.name} - {sortedPlayers[i].points} points
+        </div>
+      )
+    }
+
+    return player_elements
+  }
+
   render() {
-    const { current_player, board, game_players, meta, fetching } = this.props
+    const { current_player, board, game_players, meta, fetching, game_stat } = this.props
 
     return (
       <div id='main' key={Date.now()}>
+
         {(fetching || this.state.submittingTurn) &&
           <div className="overloader">
             <div className="text">
@@ -383,8 +756,35 @@ class Game extends React.Component {
         }
         {!fetching &&
           <div>
+            {game_stat &&
+              <div className='overloader game-over'>
+                <div className='game-over-text'>
+                  <h2>
+                    Game over. {this.didIWinText()}
+                  </h2>
+                  <div className='details'>
+                    {this.renderPlayerPoints()}
+                  </div>
+                  <div className='gif'>
+                  {this.didIWin() &&
+                    <img src='http://i.giphy.com/11Feog5PTumNnq.gif'/>
+                  }
+                  {!this.didIWin() &&
+                    <img src='https://media.giphy.com/media/xDQ3Oql1BN54c/giphy.gif'/>
+                  }
+                  </div>
+                </div>
+              </div>
+            }
             {this.state.myTurn &&
               <div className='turn-box'>
+                {this.state.turnState != 'PICK_ACTION' &&
+                  <div className='redo-round'
+                       onClick={this.setInitialState.bind(this, this.props)}>
+                    <i className='mdi mdi-replay'></i>
+                    redo turn
+                  </div>
+                }
                 {this.state.turnState == 'PICK_ACTION' &&
                   <div className='turn-box-inner-wrap'>
                     <div className='turn-help'>
@@ -395,11 +795,56 @@ class Game extends React.Component {
                               onClick={this.pickAction.bind(this, 'TAKE_GEMS')}>
                         Take Gems
                       </button>
-                      <button className='btn'>
-                        Reserve Card
+                      <button className='btn'
+                              onClick={this.pickAction.bind(this, 'RESERVE_CARD')}
+                              disabled={!this.canReserveCard()}>
+                        Reserve Development
                       </button>
-                      <button className='btn'>
-                        Buy Card
+                      <button className='btn'
+                              onClick={this.pickAction.bind(this, 'BUY_CARD')}>
+                        Buy Development
+                      </button>
+                    </div>
+                  </div>
+                }
+                {this.state.turnState == 'BUY_CARD' &&
+                  <div className='turn-box-inner-wrap pick-card'>
+                    <div className='turn-help'>
+                      Pick the card you want to purchase
+                    </div>
+                    <div className='gems-picked picked-card'>
+                      {this.renderCardPicked()}
+                    </div>
+                    <div className='actions'>
+                      <button className='btn'
+                              disabled={this.reserveButtonDisabled()}
+                              onClick={this.doneBuyCardPick}>
+                        End Turn
+                      </button>
+                    </div>
+                  </div>
+                }
+                {this.state.turnState == 'RESERVE_CARD' &&
+                  <div className='turn-box-inner-wrap pick-card'>
+                    <div className='turn-help'>
+                      Pick the card you want to reserve
+                    </div>
+                    {this.canReserveJoker() &&
+                      <div className='gems-picked'>
+                          <div className='coin-pile yellow'></div>
+                      </div>
+                    }
+                    {this.canReserveJoker() &&
+                      <div className='turn-help'> + </div>
+                    }
+                    <div className='gems-picked picked-card'>
+                      {this.renderCardPicked()}
+                    </div>
+                    <div className='actions'>
+                      <button className='btn'
+                              disabled={this.reserveButtonDisabled()}
+                              onClick={this.doneReserveCardPick}>
+                        End Turn
                       </button>
                     </div>
                   </div>
@@ -438,12 +883,20 @@ class Game extends React.Component {
             }
             {!this.state.myTurn &&
               <div className='turn-box other-player'>
-                Vivian's turn, wait a while...
+                {this.currentTurnPlayerName()}'s turn, wait a while...
               </div>
             }
             <div className='players'>
+              <div className='round'>
+                Round {this.roundNumber(meta.turn_number)}
+                {this.lastRound() &&
+                  <div className='last-round'>
+                    Last Round
+                  </div>
+                }
+              </div>
             {game_players.map(player =>
-              <div className={classNames('player', {'current-player': player.id == meta.current_turn_player_id})}
+              <div className={classNames('player', {'current-turn-player': player.id == meta.current_turn_player_id})}
                    key={player.id}>
                 <div className='avatar'>
                   <img src={player.user.avatar_url} />
@@ -537,12 +990,39 @@ class Game extends React.Component {
                   </div>
                 </div>
               </div>
-              <div className='handy'>
+              {/*<button className='handy btn'*/}
+              <button className={this.handyClass()}
+                      onClick={this.toggleHand}
+                      disabled={this.handEmpty()}>
                 <i className='mdi mdi-cards' />
                 <span>
                   {current_player.hand.length}
                 </span>
-              </div>
+              </button>
+              {this.state.showHand &&
+                <div className='my-hand'>
+                  {current_player.hand.map( (card) =>
+                    <div className={this.boardCardClasses(card)}
+                         key={card.id}
+                         onClick={this.pickCard.bind(this, card)}>
+                      <div className='cost'>
+                        {card.cost.map((costItem, index) =>
+                          <div className={classNames('mini-coin', costItem.color)}
+                               key={'1'+index}>
+                            <span className='value'>
+                              {costItem.amount}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className='points'>
+                        {card.point_value > 0 ? card.point_value : ''}
+                      </div>
+                      <img className='value-gem' src={require('../assets/images/gems/'+card.gem_value+'.png')}/>
+                    </div>
+                  )}
+                </div>
+              }
             </div>
             <div className='main-card-area'>
               <div className={classNames('currency-piles', {'active': this.state.turnState == 'TAKE_GEMS'})}>
@@ -579,8 +1059,9 @@ class Game extends React.Component {
               <div className='card-row'>
                 <div className='card-pile' />
                 {board.cards.tier3.available_cards.map(card =>
-                  <div className={classNames('card', card.gem_value)}
-                       key={card.id}>
+                  <div className={this.boardCardClasses(card)}
+                       key={card.id}
+                       onClick={this.pickCard.bind(this, card)}>
                     <div className='cost'>
                       {card.cost.map((costItem, index) =>
                         <div className={classNames('mini-coin', costItem.color)}
@@ -600,8 +1081,9 @@ class Game extends React.Component {
               </div>
               <div className='card-row'>
                 {board.cards.tier2.available_cards.map(card =>
-                  <div className={classNames('card', card.gem_value)}
-                       key={card.id}>
+                  <div className={this.boardCardClasses(card)}
+                       key={card.id}
+                       onClick={this.pickCard.bind(this, card)}>
                     <div className='cost'>
                       {card.cost.map((costItem, index) =>
                         <div className={classNames('mini-coin', costItem.color)}
@@ -622,8 +1104,9 @@ class Game extends React.Component {
               <div className='card-row'>
                 <div className='card-pile' />
                 {board.cards.tier1.available_cards.map(card =>
-                  <div className={classNames('card', card.gem_value)}
-                       key={card.id}>
+                  <div className={this.boardCardClasses(card)}
+                       key={card.id}
+                       onClick={this.pickCard.bind(this, card)}>
                     <div className='cost'>
                       {card.cost.map((costItem, index) =>
                         <div className={classNames('mini-coin', costItem.color)}
@@ -658,6 +1141,7 @@ function mapStateToProps(state) {
       board: state.game.board,
       game_players: state.game.game_players,
       current_player: state.game.current_player,
+      game_stat: state.game.game_stat,
       fetching: false
     }
   }

@@ -21,6 +21,10 @@ $red: #e4463f;
   bottom: 0;
   background: rgba(255, 255, 255, 0.7);
   z-index: 999;
+  &.game-over {
+    background: rgba(1, 25, 37, 0.90);
+    color: white;
+  }
   .text {
     text-align: center;
     position: absolute;
@@ -28,6 +32,38 @@ $red: #e4463f;
     right: 0;
     top: 40%;
     font-size: 60px;
+  }
+  .game-over-text {
+    text-align: center;
+    font-size: 60px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    margin-top: -350px;
+    h2 {
+      margin-bottom: 50px;
+      font-weight: 600;
+    }
+    .details {
+      font-size: 40px;
+      .player-point {
+        margin-bottom: 25px;
+      }
+      img {
+        position: relative;
+        top: 3px;
+        margin-right: 20px;
+        height: 34px;
+        border-radius: 3px;
+      }
+    }
+    .gif {
+      margin-top: 70px;
+      img {
+        height: 190px;
+      }
+    }
   }
 }
 
@@ -86,23 +122,6 @@ body {
   height: 100%;
 }
 
-.btn {
-  outline: none;
-  border: none;
-  color: white;
-  background-color: #a74040;
-  box-shadow: 0 4px 0 shade(#a74040, 25%);
-  border: 1px solid shade(#a74040, 25%);
-  line-height: 1em;
-  padding: 0.6em 1.1em;
-  border-radius: 0.3em;
-  font-weight: 500;
-  &:hover {
-    cursor: pointer;
-    background-color: tint(#a74040, 5%);
-  }
-}
-
 .bold {
   font-weight: 500;
 }
@@ -119,6 +138,7 @@ body {
 }
 
 .btn {
+  outline: none;
   background-color: #555;
   color: white;
   padding: 12px 20px;
@@ -133,10 +153,12 @@ body {
     opacity: 0.5;
     &:hover {
       cursor: default;
+      background-color: #555;
     }
   }
   &:hover {
     cursor: pointer;
+    background-color: tint(#a74040, 5%);
   }
   &:last-child {
     margin-right: 0;
@@ -156,6 +178,23 @@ body {
   font-size: 25px;
   display: table;
   width: 100%;
+  .redo-round {
+    position: absolute;
+    left: 0;
+    text-align: center;
+    width: 100%;
+    top: 110%;
+    font-size: 16px;
+    i {
+      margin-right: 5px;
+      position: relative;
+      top: 1px;
+    }
+    &:hover {
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  }
   .actions {
     // margin-top: 20px;
     line-height: 60px;
@@ -179,6 +218,22 @@ body {
           margin-bottom: 0;
         }
       }
+    }
+    &.pick-card {
+      .gems-picked {
+        // width: 40px;
+        &.picked-card {
+          width: 70px;
+        }
+        .card {
+          @include transform(scale(0.4));
+          // @include translate(-50px, -50px);
+          position: relative;
+          top: -55px;
+          left: -30px;
+        }
+      }
+
     }
     .turn-help {
       // margin-bottom: 30px;
@@ -218,6 +273,11 @@ body {
         border: 2px dashed #aaa;
         display: inline-block;
         margin-right: 25px;
+        &.card-slot {
+          border-radius: 5px;
+          width: 50px;
+          // box-shadow: 0 0 10px $yellow;
+        }
         &:last-child {
           margin-right: 0;
         }
@@ -263,6 +323,7 @@ body {
   left: 20px;
   top: 20px;
   width: 60px;
+  z-index: 99;
   .avatar-wrap {
     padding: 5px;
     border-radius: 5px;
@@ -280,21 +341,29 @@ body {
       text-shadow: none;
     }
   }
+  .my-hand {
+    position: absolute;
+    top: 0;
+    left: 120%;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 3px;
+    z-index: 9999;
+    .card {
+      margin-bottom: 20px;
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
   .handy {
     text-align: center;
     margin-top: 10px;
     position: relative;
     padding: 10px 10px;
     border-radius: 200px;
-    background-color: #555;
-    box-shadow: 0 3px 0 #333333;
-    border: 1px solid #222;
     box-sizing: border-box;
-    &:hover {
-      cursor: pointer;
-      background-color: tint(#a74040, 5%);
-    }
-    span {
+    & > span {
       left: 0;
       position: absolute;
       width: 100%;
@@ -308,6 +377,17 @@ body {
     i {
       font-size: 39px;
       color: white;
+    }
+    &.active-glow {
+      box-shadow: 0 0 50px #e2d209, 0 3px 0 shade(#555, 40%);
+      position: relative;
+      &.card {
+        box-shadow: 0 0 20px #e2d209;
+      }
+      &:hover {
+        cursor: pointer;
+        box-shadow: 0 0 75px #e2d209, 0 3px 0 shade(#555, 40%);
+      }
     }
   }
   .collections {
@@ -374,6 +454,22 @@ body {
   position: fixed;
   right: 0;
   top: 20px;
+  .round {
+    color: white;
+    text-align: right;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    margin-bottom: 20px;
+    font-size: 19;
+    font-weight: 600;
+    & > .last-round {
+      margin-top: 5px;
+      opacity: 0.7;
+      font-size: 12px;
+    }
+  }
   .player {
     margin-bottom: 20px;
     width: 100px;
@@ -387,7 +483,7 @@ body {
       cursor: pointer;
       background: rgba(0, 0, 0, 0.45);
     }
-    &.current-player {
+    &.current-turn-player {
       box-shadow: 0 0 25px #aaa;
       background: rgba(0, 0, 0, 0.55);
     }
@@ -532,10 +628,14 @@ body {
 }
 
 .active-glow {
-  box-shadow: 0 0 30px #e2d209;
+  box-shadow: 0 0 50px #e2d209;
+  position: relative;
+  &.card {
+    box-shadow: 0 0 20px #e2d209;
+  }
   &:hover {
     cursor: pointer;
-    box-shadow: 0 0 45px #e2d209;
+    box-shadow: 0 0 75px #e2d209;
   }
 }
 
@@ -629,6 +729,7 @@ body {
   position: absolute;
   left: -90px;
   top: 20px;
+  // z-index: -1;
 }
 
 .nobles-list {
