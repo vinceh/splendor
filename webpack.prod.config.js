@@ -3,19 +3,13 @@ const webpack = require('webpack')
 
 module.exports = {
   devtool: 'source-map',
-
-  entry: [
-    './src/index'
-  ],
-
+  entry: ['./src/index'],
   output: {
-    path: path.join(__dirname, 'public'),
+    path: path.join(__dirname, 'dist'),
     filename: 'bundle.js',
-    publicPath: '/public/'
+    publicPath: '/'
   },
-
   plugins: [
-    new webpack.optimize.DedupePlugin(),
     new webpack.optimize.UglifyJsPlugin({
       minimize: true,
       compress: {
@@ -28,19 +22,33 @@ module.exports = {
       }
     })
   ],
-
   module: {
     loaders: [
-      { test: /\.js?$/,
+      {
+        test: /\.jsx?$/,
+        exclude: /node_modules/,
         loader: 'babel',
-        exclude: /node_modules/ },
-      { test: /\.scss?$/,
-        loader: 'style!css!sass',
-        include: path.join(__dirname, 'src', 'styles') },
-      { test: /\.png$/,
-        loader: 'file' },
-      { test: /\.(ttf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
-        loader: 'file'}
+      },
+      {
+        test: /\.json$/,
+        loader: 'json'
+      },
+      {
+        test   : /\.woff|\.woff2|\.svg|.eot|\.ttf/,
+        loader : 'url?prefix=font/&limit=10000'
+      },
+      {
+        test: /\.s?css$/,
+        loader: 'style!css!sass'
+      },
+      {
+        test: /\.png/,
+        loader: 'url-loader?limit=100000&minetype=image/png'
+      },
+      {
+        test: /\.jpg/,
+        loader: 'file-loader'
+      }
     ]
   }
 }
