@@ -33,7 +33,7 @@ class Home extends React.Component {
         {this.state.fetching &&
           <div className="overloader">
             <div className="text">
-              <img src="https://s3.amazonaws.com/splendor-general/assets/loading-balls.svg"/>
+              <img src="https://dsgcewkenvygd.cloudfront.net/assets/loading-balls.svg"/>
             </div>
           </div>
         }

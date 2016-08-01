@@ -115,7 +115,7 @@ html {
 
 body {
   font-family: Whitney;
-  background: url('../images/bg.jpg');
+  background: url('https://dsgcewkenvygd.cloudfront.net/splendorbg.jpg');
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -651,38 +651,38 @@ body {
   box-sizing: border-box;
   &.green {
     background-image:
-      url('https://s3.amazonaws.com/splendor-general/gems/green.png'),
-      url('https://s3.amazonaws.com/splendor-general/gems/greenbg.jpg');
+      url('https://dsgcewkenvygd.cloudfront.net/gems/green.png'),
+      url('https://dsgcewkenvygd.cloudfront.net/gems/greenbg.jpg');
     border: 3px solid $green;
   }
   &.white {
     background-image:
-      url('https://s3.amazonaws.com/splendor-general/gems/white.png'),
-      url('https://s3.amazonaws.com/splendor-general/gems/whitebg.jpg');
+      url('https://dsgcewkenvygd.cloudfront.net/gems/white.png'),
+      url('https://dsgcewkenvygd.cloudfront.net/gems/whitebg.jpg');
     border: 3px solid $white;
   }
   &.blue {
     background-image:
-      url('https://s3.amazonaws.com/splendor-general/gems/blue.png'),
-      url('https://s3.amazonaws.com/splendor-general/gems/bluebg.jpg');
+      url('https://dsgcewkenvygd.cloudfront.net/gems/blue.png'),
+      url('https://dsgcewkenvygd.cloudfront.net/gems/bluebg.jpg');
     border: 3px solid $blue;
   }
   &.black {
     background-image:
-      url('https://s3.amazonaws.com/splendor-general/gems/black.png'),
-      url('https://s3.amazonaws.com/splendor-general/gems/blackbg.jpg');
+      url('https://dsgcewkenvygd.cloudfront.net/gems/black.png'),
+      url('https://dsgcewkenvygd.cloudfront.net/gems/blackbg.jpg');
     border: 3px solid $black;
   }
   &.red {
     background-image:
-      url('https://s3.amazonaws.com/splendor-general/gems/red.png'),
-      url('https://s3.amazonaws.com/splendor-general/gems/redbg.jpg');
+      url('https://dsgcewkenvygd.cloudfront.net/gems/red.png'),
+      url('https://dsgcewkenvygd.cloudfront.net/gems/redbg.jpg');
     border: 3px solid $red;
   }
   &.yellow {
     background-image:
-      url('https://s3.amazonaws.com/splendor-general/gems/yellow.png'),
-      url('https://s3.amazonaws.com/splendor-general/gems/yellowbg.jpg');
+      url('https://dsgcewkenvygd.cloudfront.net/gems/yellow.png'),
+      url('https://dsgcewkenvygd.cloudfront.net/gems/yellowbg.jpg');
     border: 3px solid $yellow;
   }
   &.show-count {
