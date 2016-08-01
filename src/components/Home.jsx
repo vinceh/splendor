@@ -13,7 +13,7 @@ class Home extends React.Component {
 
   componentDidMount() {
     console.log('mounted')
-    console.log('process env', process)
+    console.log(API_URL)
   }
 
 

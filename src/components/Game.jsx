@@ -119,7 +119,7 @@ class Game extends React.Component {
             card_id: this.state.turnObjects.card.id
           }
         ))
-      }, 2000)
+      }, 0)
     }
   }
 
@@ -371,7 +371,7 @@ class Game extends React.Component {
             gems: this.state.turnObjects.gems
           }
         ))
-      }, 2000)
+      }, 0)
     }
   }
 
@@ -473,7 +473,7 @@ class Game extends React.Component {
               discardedGems: this.state.discardedGems
             }
           ))
-        }, 2000)
+        }, 0)
         break
       case 'RESERVE_CARD':
         setTimeout(() => {
@@ -486,7 +486,7 @@ class Game extends React.Component {
               discardedGems: this.state.discardedGems
             }
           ))
-        }, 2000)
+        }, 0)
         break
     }
 

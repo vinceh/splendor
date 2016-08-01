@@ -3,7 +3,7 @@ import { hashHistory } from 'react-router'
 export function get_game(game_id) {
   console.log('getting game')
   return (dispatch) => {
-    return fetch_get(`http://localhost:3001/games/${game_id}`)
+    return fetch_get(`${API_URL}/games/${game_id}`)
       .then(response => response.json())
       .then(json => {
         dispatch({
@@ -17,7 +17,7 @@ export function get_game(game_id) {
 export function new_game(players) {
   return (dispatch) => {
     return fetch_post(
-      'http://localhost:3001/new_game',
+      `${API_URL}/new_game`,
       {
         user_ids: [
           1,
@@ -47,7 +47,7 @@ export function submit_turn() {
 export function submit_pick_gems(game_id, params) {
   return (dispatch) => {
     return fetch_post(
-      `http://localhost:3001/games/${game_id}/submit_pick_gems`, params)
+      `${API_URL}/games/${game_id}/submit_pick_gems`, params)
       .then(response => response.json())
       .then(json => {
         dispatch({
@@ -61,7 +61,7 @@ export function submit_pick_gems(game_id, params) {
 export function submit_reserve_card(game_id, params) {
   return (dispatch) => {
     return fetch_post(
-      `http://localhost:3001/games/${game_id}/submit_reserve_card`, params)
+      `${API_URL}/games/${game_id}/submit_reserve_card`, params)
       .then(response => response.json())
       .then(json => {
         dispatch({
@@ -75,7 +75,7 @@ export function submit_reserve_card(game_id, params) {
 export function submit_buy_card(game_id, params) {
   return (dispatch) => {
     return fetch_post(
-      `http://localhost:3001/games/${game_id}/submit_buy_card`, params)
+      `${API_URL}/games/${game_id}/submit_buy_card`, params)
       .then(response => response.json())
       .then(json => {
         dispatch({

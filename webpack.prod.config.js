@@ -19,7 +19,8 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env': {
         'NODE_ENV': JSON.stringify('production')
-      }
+      },
+      API_URL: JSON.stringify("https://vast-peak-50814.herokuapp.com/")
     })
   ],
   resolve: {
