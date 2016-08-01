@@ -423,7 +423,7 @@ class Game extends React.Component {
           <div className='points'>
             {card.point_value > 0 ? card.point_value : ''}
           </div>
-          <img className='value-gem' src={require('../assets/images/gems/'+card.gem_value+'.png')}/>
+          <img className='value-gem' src={`https://s3.amazonaws.com/splendor-general/gems/${card.gem_value}.png`}/>
         </div>
       )
     }
@@ -1018,7 +1018,7 @@ class Game extends React.Component {
                       <div className='points'>
                         {card.point_value > 0 ? card.point_value : ''}
                       </div>
-                      <img className='value-gem' src={require('../assets/images/gems/'+card.gem_value+'.png')}/>
+                      <img className='value-gem' src={`https://s3.amazonaws.com/splendor-general/gems/${card.gem_value}.png`}/>
                     </div>
                   )}
                 </div>
@@ -1075,7 +1075,7 @@ class Game extends React.Component {
                     <div className='points'>
                       {card.point_value > 0 ? card.point_value : ''}
                     </div>
-                    <img className='value-gem' src={require('../assets/images/gems/'+card.gem_value+'.png')}/>
+                    <img className='value-gem' src={`https://s3.amazonaws.com/splendor-general/gems/${card.gem_value}.png`}/>
                   </div>
                 )}
               </div>
@@ -1097,7 +1097,7 @@ class Game extends React.Component {
                     <div className='points'>
                       {card.point_value > 0 ? card.point_value : ''}
                     </div>
-                    <img className='value-gem' src={require('../assets/images/gems/'+card.gem_value+'.png')}/>
+                    <img className='value-gem' src={`https://s3.amazonaws.com/splendor-general/gems/${card.gem_value}.png`}/>
                   </div>
                 )}
               </div>
@@ -1120,7 +1120,7 @@ class Game extends React.Component {
                     <div className='points'>
                       {card.point_value > 0 ? card.point_value : ''}
                     </div>
-                    <img className='value-gem' src={require('../assets/images/gems/'+card.gem_value+'.png')}/>
+                    <img className='value-gem' src={`https://s3.amazonaws.com/splendor-general/gems/${card.gem_value}.png`}/>
                   </div>
                 )}
               </div>

@@ -651,38 +651,38 @@ body {
   box-sizing: border-box;
   &.green {
     background-image:
-      url('../images/gems/green.png'),
-      url('../images/gems/greenbg.jpg');
+      url('https://s3.amazonaws.com/splendor-general/gems/green.png'),
+      url('https://s3.amazonaws.com/splendor-general/gems/greenbg.jpg');
     border: 3px solid $green;
   }
   &.white {
     background-image:
-      url('../images/gems/white.png'),
-      url('../images/gems/whitebg.jpg');
+      url('https://s3.amazonaws.com/splendor-general/gems/white.png'),
+      url('https://s3.amazonaws.com/splendor-general/gems/whitebg.jpg');
     border: 3px solid $white;
   }
   &.blue {
     background-image:
-      url('../images/gems/blue.png'),
-      url('../images/gems/bluebg.jpg');
+      url('https://s3.amazonaws.com/splendor-general/gems/blue.png'),
+      url('https://s3.amazonaws.com/splendor-general/gems/bluebg.jpg');
     border: 3px solid $blue;
   }
   &.black {
     background-image:
-      url('../images/gems/black.png'),
-      url('../images/gems/blackbg.jpg');
+      url('https://s3.amazonaws.com/splendor-general/gems/black.png'),
+      url('https://s3.amazonaws.com/splendor-general/gems/blackbg.jpg');
     border: 3px solid $black;
   }
   &.red {
     background-image:
-      url('../images/gems/red.png'),
-      url('../images/gems/redbg.jpg');
+      url('https://s3.amazonaws.com/splendor-general/gems/red.png'),
+      url('https://s3.amazonaws.com/splendor-general/gems/redbg.jpg');
     border: 3px solid $red;
   }
   &.yellow {
     background-image:
-      url('../images/gems/yellow.png'),
-      url('../images/gems/yellowbg.jpg');
+      url('https://s3.amazonaws.com/splendor-general/gems/yellow.png'),
+      url('https://s3.amazonaws.com/splendor-general/gems/yellowbg.jpg');
     border: 3px solid $yellow;
   }
   &.show-count {
