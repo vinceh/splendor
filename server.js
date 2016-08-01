@@ -3,6 +3,8 @@ var express = require('express');
 var app = new express();
 var port = process.env.PORT || 8080;
 
+console.log('from server', process.env.NODE_ENV)
+
 if (process.env.NODE_ENV !== 'production') {
   var webpack = require('webpack');
   var webpackDevMiddleware = require('webpack-dev-middleware');
