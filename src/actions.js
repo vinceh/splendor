@@ -1,7 +1,6 @@
 import { hashHistory } from 'react-router'
 
 export function get_game(game_id) {
-  console.log('getting game')
   return (dispatch) => {
     return fetch_get(`${API_URL}/games/${game_id}`)
       .then(response => response.json())
@@ -19,10 +18,7 @@ export function new_game(players) {
     return fetch_post(
       `${API_URL}/new_game`,
       {
-        user_ids: [
-          1,
-          2
-        ]
+        user_ids: players
       })
       .then(response => response.json())
       .then(json => {
@@ -81,6 +77,49 @@ export function submit_buy_card(game_id, params) {
         dispatch({
           type: 'GET_GAME',
           game_data: json.gameState
+        })
+      })
+  }
+}
+
+export function get_users() {
+  return (dispatch) => {
+    return fetch_get(`${API_URL}/all_users`)
+      .then(response => response.json())
+      .then(json => {
+        dispatch({
+          type: 'GET_USERS',
+          users: json
+        })
+      })
+  }
+}
+
+export function get_games() {
+  return (dispatch) => {
+    return fetch_get(`${API_URL}/my_games`)
+      .then(response => response.json())
+      .then(json => {
+      console.log(json)
+        // dispatch({
+        //   type: 'GET_GAMES',
+        //   games: json
+        // })
+      })
+  }
+}
+
+export function get_profile() {
+  return (dispatch) => {
+    return fetch_get(`${API_URL}/profile`)
+      .then(response => response.json())
+      .then(json => {
+        console.log(json.users)
+        dispatch({
+          type: 'GET_PROFILE',
+          games: json.games,
+          users: json.users,
+          my_profile: json.my_profile
         })
       })
   }

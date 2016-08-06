@@ -1,53 +1,141 @@
 import React from 'react'
-import { Link, hashHistory } from 'react-router'
-import { new_game } from '../actions'
+import { hashHistory } from 'react-router'
+import { get_users } from '../actions'
 import { connect } from 'react-redux'
+import classNames from 'classnames'
 
 class Home extends React.Component {
   constructor() {
     console.log('constructed')
     super()
-    this.buttonclicked = this.buttonclicked.bind(this);
+    this.pickPlayer = this.pickPlayer.bind(this);
+    this.login = this.login.bind(this);
     this.state = {}
   }
 
   componentDidMount() {
+    const { dispatch } = this.props
+
     console.log('mounted')
-    console.log(API_URL)
+    if ( !window.localStorage.getItem('token') ) {
+      console.log('YOU ARENT LOGGED IN')
+      this.setState({
+        userLoggedIn: false,
+        fetching: true
+      })
+      dispatch(get_users())
+    }
+    else {
+      this.setState({
+        userLoggedIn: true
+      })
+      hashHistory.push(`/profile`)
+    }
   }
 
+  componentWillReceiveProps(newProps) {
+    console.log('i got new props', this.props)
+    const { fetching } = newProps
 
-  buttonclicked() {
-    const { dispatch } = this.props
+    if ( !fetching ) {
+      console.log('logged in')
+      this.setState({
+        userLoggedIn: true
+      })
+    }
+  }
+
+  pickPlayer(user_id, token) {
     this.setState({
-      fetching: true
+      picked_user_id: user_id,
+      picked_player_token: token
     })
-    console.log(this.state)
-    console.log('dispatching new game')
-    dispatch(new_game([1,2,3]))
+  }
+
+  loginDisabled() {
+    const { picked_user_id } = this.state
+
+    if ( picked_user_id ) {
+      return false
+    }
+    else {
+      return true
+    }
+  }
+
+  availablePlayerClasses(user_id) {
+    const { picked_user_id } = this.state
+
+    return classNames(
+      'available-player',
+      {
+        'active': picked_user_id == user_id
+      }
+    )
+  }
+
+  login() {
+    const { picked_player_token } = this.state
+
+    window.localStorage.setItem('token', picked_player_token)
+    hashHistory.push(`/profile`)
   }
 
   render() {
+    const { users, fetching } = this.props
+
     return (
       <div className="home-wrap">
-        {this.state.fetching &&
+        {this.state.userLoggedIn &&
+          <div className='login-wrap'>
+            <h3>Who are you?</h3>
+            <div className='list-available-players'>
+              {users.map(user =>
+                <div className={this.availablePlayerClasses(user.id)}
+                     key={user.id}
+                     onClick={this.pickPlayer.bind(this, user.id, user.token)}>
+                  <div className='avatar'>
+                    <img src={user.avatar_url}/>
+                  </div>
+                  <div className='username'>
+                    {user.name}
+                  </div>
+                </div>
+              )}
+            </div>
+            <button className='btn'
+                    disabled={this.loginDisabled()}
+                    onClick={this.login}>
+              Login
+            </button>
+          </div>
+        }
+        {fetching &&
           <div className="overloader">
             <div className="text">
               <img src="https://dsgcewkenvygd.cloudfront.net/assets/loading-balls.svg"/>
             </div>
           </div>
         }
-        <h1> Welcome back, friend. </h1>
-        <button className="btn" onClick={this.buttonclicked}>
-          Start a New Game
-        </button>
       </div>
     )
   }
 }
 
 function mapStateToProps(state) {
-  return {}
+  console.log('mapping state to props', state)
+  const { fetching } = state.home
+
+  if ( !fetching ) {
+    console.log('not fetching')
+    return {
+      users: state.home.users
+    }
+  } else {
+    return {
+      fetching: true
+    }
+  }
 }
 
 export default connect(mapStateToProps)(Home)

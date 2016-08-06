@@ -4,6 +4,7 @@ import Immutable from 'immutable';
 
 import Game from './components/Game';
 import Home from './components/Home';
+import Profile from './components/Profile';
 import {Provider} from 'react-redux';
 
 import configureStore from './configureStore'
@@ -19,6 +20,7 @@ ReactDOM.render(
   <Provider store={store}>
     <Router history={history}>
       <Route path='/' component={Home} />
+      <Route path='/profile' component={Profile} />
       <Route path='/game/:game_id' component={Game} />
     </Router>
   </Provider>,

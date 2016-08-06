@@ -1,7 +1,8 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
-import { get_game, submit_pick_gems, submit_reserve_card, submit_buy_card } from '../actions'
+import { get_game, submit_pick_gems, submit_reserve_card,
+         submit_buy_card, check_for_new_turn } from '../actions'
 
 class Game extends React.Component {
   constructor() {
@@ -19,13 +20,14 @@ class Game extends React.Component {
     this.doneReserveCardPick = this.doneReserveCardPick.bind(this)
     this.toggleHand = this.toggleHand.bind(this)
     this.doneBuyCardPick = this.doneBuyCardPick.bind(this)
+    this.showPlayerDeets = this.showPlayerDeets.bind(this)
   }
 
   componentDidMount() {
     console.log('component mounted', this.props)
+    const { dispatch } = this.props
+    const { game_id } = this.props.params
     if (this.props.fetching) {
-      const { dispatch } = this.props
-      const { game_id } = this.props.params
       setTimeout(() => {
         dispatch(get_game(parseInt(game_id)))
       }, 0)
@@ -41,10 +43,15 @@ class Game extends React.Component {
     const { current_player, meta } = props
 
     if ( current_player.hand.length == 0 ) {
-      this.state = {}
+      this.state = {
+        show_player_hand: this.state.show_player_hand
+      }
     }
     else {
-      this.state = {showHand: this.state.showHand}
+      this.state = {
+        showHand: this.state.showHand,
+        show_player_hand: this.state.show_player_hand
+      }
     }
 
     if ( current_player.id == meta.current_turn_player_id ) {
@@ -57,7 +64,24 @@ class Game extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    this.setInitialState(newProps)
+    // console.log('got new props', newProps, 'old props', this.props)
+
+    if ( !this.props.meta || (newProps.meta.turn_number != this.props.meta.turn_number) ) {
+      console.log('setting initial state')
+      clearTimeout(this.poll)
+      this.setInitialState(newProps)
+    }
+
+    // this.startPoll()
+  }
+
+  startPoll() {
+    const { dispatch } = this.props
+    const { game_id } = this.props.params
+
+    this.poll = setTimeout(() => {
+      dispatch(get_game(parseInt(game_id)))
+    }, 8000)
   }
 
   toggleHand() {
@@ -684,7 +708,9 @@ class Game extends React.Component {
   }
 
   roundNumber(turn) {
-    return Math.ceil(turn/4)
+    const { game_players } = this.props
+
+    return Math.ceil(turn/game_players.length)
   }
 
   didIWin() {
@@ -739,6 +765,38 @@ class Game extends React.Component {
     }
 
     return player_elements
+  }
+
+  playerDeetsClasses(player_id) {
+    const { current_player } = this.props
+    const { show_player_hand } = this.state
+
+    if ( current_player.id == player_id || show_player_hand != player_id ) {
+      return classNames(
+        'player-deets',
+        'hidden'
+      )
+    }
+    else {
+      return classNames(
+        'player-deets'
+      )
+    }
+  }
+
+  showPlayerDeets(player_id) {
+    const { show_player_hand } = this.state
+
+    if ( show_player_hand == player_id ) {
+      this.setState({
+        show_player_hand: null
+      })
+    }
+    else {
+      this.setState({
+        show_player_hand: player_id
+      })
+    }
   }
 
   render() {
@@ -896,13 +954,93 @@ class Game extends React.Component {
                 }
               </div>
             {game_players.map(player =>
-              <div className={classNames('player', {'current-turn-player': player.id == meta.current_turn_player_id})}
-                   key={player.id}>
-                <div className='avatar'>
-                  <img src={player.user.avatar_url} />
+              <div className='player-inner' key={player.id}>
+                <div className={classNames('player', {'current-turn-player': player.id == meta.current_turn_player_id})}
+                     onClick={this.showPlayerDeets.bind(this, player.id)}>
+                  <div className='avatar'>
+                    <img src={player.user.avatar_url} />
+                  </div>
+                  <div className='points'>
+                    {player.points}
+                  </div>
                 </div>
-                <div className='points'>
-                  {player.points}
+                <div className={this.playerDeetsClasses(player.id)}>
+                  <div className='item'>
+                    <div className='mini-card green'>
+                      <span>
+                        {player.inventory.gems.green}
+                      </span>
+                    </div>
+                    <div className='mini-coin green'>
+                      <span>
+                        {player.inventory.coins.green}
+                      </span>
+                    </div>
+                  </div>
+                  <div className='item'>
+                    <div className='mini-card white'>
+                      <span className='value'>
+                        {player.inventory.gems.white}
+                      </span>
+                    </div>
+                    <div className='mini-coin white'>
+                      <span className='value'>
+                        {player.inventory.coins.white}
+                      </span>
+                    </div>
+                  </div>
+                  <div className='item'>
+                    <div className='mini-card blue'>
+                      <span>
+                        {player.inventory.gems.blue}
+                      </span>
+                    </div>
+                    <div className='mini-coin blue'>
+                      <span>
+                        {player.inventory.coins.blue}
+                      </span>
+                    </div>
+                  </div>
+                  <div className='item'>
+                    <div className='mini-card black'>
+                      <span>
+                        {player.inventory.gems.black}
+                      </span>
+                    </div>
+                    <div className='mini-coin black'>
+                      <span>
+                        {player.inventory.coins.black}
+                      </span>
+                    </div>
+                  </div>
+                  <div className='item'>
+                    <div className='mini-card red'>
+                      <span>
+                        {player.inventory.gems.red}
+                      </span>
+                    </div>
+                    <div className='mini-coin red'>
+                      <span>
+                        {player.inventory.coins.red}
+                      </span>
+                    </div>
+                  </div>
+                  <div className='item'>
+                    <div className='mini-card yellow'>
+                      <span className='value'>
+                        {player.inventory.gems.yellow}
+                      </span>
+                    </div>
+                    <div className='mini-coin yellow'>
+                      <span className='value'>
+                        {player.inventory.coins.yellow}
+                      </span>
+                    </div>
+                  </div>
+                  <div className='item hand-size'>
+                    <i className='mdi mdi-cards'></i>
+                    {player.inventory.hand_count}
+                  </div>
                 </div>
               </div>
             )}
@@ -1133,7 +1271,6 @@ class Game extends React.Component {
 }
 
 function mapStateToProps(state) {
-  console.log('mapping state to props', state)
   if (!state.game.fetching) {
     return {
       game_id: state.game.game_id,
