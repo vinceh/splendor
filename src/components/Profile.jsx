@@ -99,7 +99,7 @@ class Profile extends React.Component {
   renderGames() {
     const { games } = this.props
 
-    if ( games.length > 0 ) {
+    if ( games && games.length > 0 ) {
       return games.map((game) =>
         <div className='game-wrap'
              key={game.id}
