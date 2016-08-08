@@ -1270,8 +1270,12 @@ class Game extends React.Component {
   }
 }
 
-function mapStateToProps(state) {
-  if (!state.game.fetching) {
+function mapStateToProps(state, ownProps) {
+
+  console.log('mapping state', state, ownProps)
+  // const { game_id } = state.params
+
+  if (!state.game.fetching && ownProps.params.game_id == state.game.game_id) {
     return {
       game_id: state.game.game_id,
       meta: state.game.meta,
