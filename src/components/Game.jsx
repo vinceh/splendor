@@ -71,8 +71,8 @@ class Game extends React.Component {
       clearTimeout(this.poll)
       this.setInitialState(newProps)
     }
-
-    this.startPoll()
+    //
+    // this.startPoll()
   }
 
   startPoll() {
@@ -162,7 +162,7 @@ class Game extends React.Component {
           turnState: action,
           turnObjects: {
             gems: {
-              yellow: 1
+              yellow: (this.canReserveJoker() && 1) || 0
             },
             card: {}
           }
@@ -194,7 +194,7 @@ class Game extends React.Component {
     // gems can only be picked if the action is TAKE_GEMS!
     if ( turnState == 'TAKE_GEMS' ) {
       // let's get the amount that's on the board right now
-      var boardAmount = this.boardCoinAmount(coin)
+      var boardAmount = this.boardCoinHandAmount(coin)
       var gems = turnObjects.gems
 
       // if there's no gems left on the board or if it's yellow, return false no matter what
@@ -314,18 +314,31 @@ class Game extends React.Component {
     return false
   }
 
-  boardCoinAmount(coin) {
+  boardCoinHandAmount(coin) {
     const { turnState, turnObjects } = this.state
     const { board } = this.props
 
     var boardAmount = board.coins[coin]
 
     if ( turnState == 'TAKE_GEMS' || turnState == 'DISCARD_GEMS' || turnState == 'RESERVE_CARD') {
-      return boardAmount - (turnObjects.gems[coin] || 0)
+      var newAmount = boardAmount - (turnObjects.gems[coin] || 0)
+
+      if ( newAmount < 0 ) {
+        return 0
+      }
+      else {
+        return newAmount
+      }
     }
     else {
       return boardAmount
     }
+  }
+
+  boardCoinAmount(coin) {
+    const { board } = this.props
+
+    return board.coins[coin]
   }
 
   renderChosenGems() {
@@ -1169,7 +1182,7 @@ class Game extends React.Component {
                        key={`coinpile${key}`}
                        onClick={this.pickGem.bind(this, key)}>
                     <span className='count'>
-                      {this.boardCoinAmount(key)}
+                      {this.boardCoinHandAmount(key)}
                     </span>
                   </div>
                 )}
