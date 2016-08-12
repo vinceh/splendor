@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import classNames from 'classnames'
 import { get_game, submit_pick_gems, submit_reserve_card,
          submit_buy_card, check_for_new_turn } from '../actions'
+import { hashHistory } from 'react-router'
 
 class Game extends React.Component {
   constructor() {
@@ -21,6 +22,7 @@ class Game extends React.Component {
     this.toggleHand = this.toggleHand.bind(this)
     this.doneBuyCardPick = this.doneBuyCardPick.bind(this)
     this.showPlayerDeets = this.showPlayerDeets.bind(this)
+    this.goBackToProfile = this.goBackToProfile.bind(this)
   }
 
   componentDidMount() {
@@ -72,7 +74,7 @@ class Game extends React.Component {
       this.setInitialState(newProps)
     }
     //
-    this.startPoll()
+    // this.startPoll()
   }
 
   startPoll() {
@@ -82,6 +84,10 @@ class Game extends React.Component {
     this.poll = setTimeout(() => {
       dispatch(get_game(parseInt(game_id)))
     }, 8000)
+  }
+
+  goBackToProfile() {
+    hashHistory.push(`/profile`)
   }
 
   toggleHand() {
@@ -844,6 +850,10 @@ class Game extends React.Component {
                     <img src='https://media.giphy.com/media/xDQ3Oql1BN54c/giphy.gif'/>
                   }
                   </div>
+                  <button className='btn'
+                          onClick={this.goBackToProfile}>
+                    Return to Profile
+                  </button>
                 </div>
               </div>
             }

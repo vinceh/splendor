@@ -96,27 +96,32 @@ class Profile extends React.Component {
     hashHistory.push(`/game/${game_id}`)
   }
 
-  renderGames() {
+  renderGames(renderMyTurn) {
     const { games } = this.props
 
     if ( games && games.length > 0 ) {
-      return games.map((game) =>
-        <div className='game-wrap'
-             key={game.id}
-             onClick={this.goToGame.bind(this, game.id)}>
-          <div className='game-name'>
-            Game {game.id}
-          </div>
-          <div className='game-turn'>
-            Turn #{game.turn}
-          </div>
-        </div>
+      return games.map((game) => {
+        if ((renderMyTurn && game.my_turn) || (!renderMyTurn && !game.my_turn)) {
+          return (
+            <div className='game-wrap'
+                 key={game.id}
+                 onClick={this.goToGame.bind(this, game.id)}>
+              <div className='game-name'>
+                Game {game.id}
+              </div>
+              <div className='game-turn'>
+                Turn #{game.turn}
+              </div>
+            </div>
+          )
+        }
+      }
       )
     }
     else {
       return (
         <div className='no-games'>
-          You have no active games right now, start a new game!
+          No games
         </div>
       )
     }
@@ -172,9 +177,13 @@ class Profile extends React.Component {
               <div className='profile-home'>
                 <h1> Welcome back, friend. </h1>
                 <div className='profile-inner'>
-                  <div className='left'>
-                    <h3>Your Games</h3>
-                    {this.renderGames()}
+                  <div className='column'>
+                    <h3>Your Turn Active Games</h3>
+                    {this.renderGames(true)}
+                  </div>
+                  <div className='column'>
+                    <h3>Other Active Games</h3>
+                    {this.renderGames(false)}
                   </div>
                 </div>
                 <button className="btn start-new" onClick={this.newGame}>
