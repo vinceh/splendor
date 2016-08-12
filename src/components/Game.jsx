@@ -74,7 +74,7 @@ class Game extends React.Component {
       this.setInitialState(newProps)
     }
     //
-    // this.startPoll()
+    this.startPoll()
   }
 
   startPoll() {
